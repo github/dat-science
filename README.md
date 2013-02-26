@@ -36,8 +36,8 @@ around the new behavior. `experiment.run` will always return whatever the
 * Swallows any exceptions raised by the candidate behavior, and
 * Publishes all this information for tracking and reporting.
 
-If you'd like a bit less verbosity, `Dat::Science#science` is a little bit of
-sugar that instantiates an experiment and automatically calls `run`:
+If you'd like a bit less verbosity, `Dat::Science#science` is a sugar to
+instantiate an experiment and automatically call `run`:
 
 ```ruby
 require "dat/science"
