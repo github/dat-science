@@ -161,11 +161,11 @@ It's often useful to add more information to your results, and
 `Experiment#context` makes it easy:
 
 ```ruby
-science "widget-permissions" do |experiment|
-  experiment.context :user => user
+science "widget-permissions" do |e|
+  e.context :user => user
 
-  experiment.control   { model.check_user(user).valid? } # old way
-  experiment.candidate { user.can? :read, model } # new way
+  e.control   { model.check_user(user).valid? } # old way
+  e.candidate { user.can? :read, model } # new way
 end
 ```
 
