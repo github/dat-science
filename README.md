@@ -129,6 +129,8 @@ The published `payload` is a Symbol-keyed Hash:
 ```ruby
 {
   :experiment => "widget-permissions",
+  :first      => :control,
+  :timestamp  => <a-Time-instance>,
 
   :candidate => {
     :duration  => 2.5,
@@ -140,20 +142,19 @@ The published `payload` is a Symbol-keyed Hash:
     :duration  => 25.0,
     :exception => nil,
     :value     => 24
-  },
-
-  :first => :control
+  }
 }
 ```
+
+`:experiment` is the name of the experiment. `:first` is either `:candidate` or
+`:control`, depending on which block was run first during the experiment.
+`:timestamp` is the Time when the experiment started.
 
 The `:candidate` and `:control` Hashes have the same keys:
 
 * `:duration` is the execution in ms, expressed as a float.
 * `:exception` is a reference to any raised exception or `nil`.
 * `:value` is the result of the block.
-
-`:first` is either `:candidate` or `:control`, depending on which block was run
-first during the experiment. `:experiment` is the name of the experiment.
 
 #### Adding context
 
