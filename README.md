@@ -26,7 +26,7 @@ end
 ```
 
 Wrap a `control` block around the code's original behavior, and wrap `candidate`
-around the new behavior. The `science` block will always return whatever the
+around the new behavior. `experiment.run` will always return whatever the
 `control` block returns, but it does a bunch of stuff behind the scenes:
 
 * Decides whether or not to run `candidate`,
