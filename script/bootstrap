@@ -1,0 +1,9 @@
+#!/bin/sh
+# Ensure local dependencies are available.
+
+set -e
+
+cd $(dirname "$0")/..
+rm -rf .bundle/{binstubs,config}
+
+bundle install --binstubs .bundle/binstubs --path .bundle --quiet "$@"

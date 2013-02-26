@@ -1,0 +1,9 @@
+#!/bin/sh
+# Run the unit tests.
+
+set -e
+
+cd $(dirname "$0")/..
+  script/bootstrap && ruby -I lib -r rubygems \
+    -e 'require "bundler/setup"' \
+    -e '(ARGV.empty? ? Dir["test/**/*_test.rb"] : ARGV).each { |f| load f }' -- "$@"
