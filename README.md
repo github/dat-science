@@ -100,7 +100,8 @@ end
 
 ## Hacking on Science
 
-Make sure a modern Bundler is available.`script/test` runs the unit
-tests. All development dependencies will be installed automatically if
-they're not available. Dat science happens primarily on Ruby 1.9.3 and
-1.8.7, but science should be universal.
+Be on a Unixy box. Make sure a modern Bundler is available.
+`script/test` runs the unit tests. All development dependencies will
+be installed automatically if they're not available. Dat science
+happens primarily on Ruby 1.9.3 and 1.8.7, but science should be
+universal.
