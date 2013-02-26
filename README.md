@@ -1,4 +1,4 @@
-# Dat Science!
+# Science!
 
 A Ruby library for carefully refactoring critical paths. Science isn't a feature
 flipper or an A/B testing tool, it's a pattern that helps measure and validate
@@ -136,7 +136,7 @@ The `:candidate` and `:control` Hashes have the same keys:
 `:first` is either `:candidate` or `:control`, depending on which block was run
 first during the experiment. `:experiment` is the name of the experiment.
 
-#### Adding Context
+#### Adding context
 
 It's often useful to add more information to your experimental results, and
 `Experiment#context` makes it easy:
@@ -153,7 +153,7 @@ end
 `context` takes a Symbol-keyed Hash of additional information to
 publish and merges it with the default payload.
 
-## Hacking on Science
+## Hacking on science
 
 Be on a Unixy box. Make sure a modern Bundler is available.
 `script/test` runs the unit tests. All development dependencies will
