@@ -112,14 +112,14 @@ module Dat
         observe { run_control }
       end
 
-      # Internal: Broadcast an event `name` and `payload` Hash. The
+      # Internal: Broadcast an `event` String and `payload` Hash. The
       # default implementation is a no-op. Returns nothing.
-      def publish(name, payload)
+      def publish(event, payload)
       end
 
       # Internal: Call `publish`, merging the `payload` with `context`.
-      def publish_with_context(name, payload)
-        publish name, @context.merge(payload)
+      def publish_with_context(event, payload)
+        publish event, @context.merge(payload)
       end
       # Internal: Run the candidate behavior and return its result.
       def run_candidate

@@ -1,26 +1,33 @@
 # Dat Science!
 
-A Ruby library for carefully refactoring critical paths. Science isn't
-a feature flipper or an A/B testing tool, it's a pattern that helps
-measure and validate large code changes without altering behavior.
+A Ruby library for carefully refactoring critical paths. Science isn't a feature
+flipper or an A/B testing tool, it's a pattern that helps measure and validate
+large code changes without altering behavior.
 
 ## How do I do science?
+
+Let's pretend you're changing the way you handle permissions in a large web app.
+Tests can help guide your refactoring, but you really want to compare the
+current and new behaviors live, under load.
 
 ```ruby
 require "dat/science"
 
-include Dat::Science
+class Initech::Widget
+  include Dat::Science
 
-science "user-permissions" do |experiment|
-  experiment.control   { model.check_user(user).valid? }
-  experiment.candidate { user.can? :read, model }
+  def allows?(user)
+    science "widget-permissions" do |experiment|
+      experiment.control   { model.check_user(user).valid? } # old way
+      experiment.candidate { user.can? :read, model } # new way
+    end
+  end
 end
 ```
 
-Wrap a `control` block around the code's original behavior, and wrap
-`candidate` around the new behavior. The `science` block will return
-whatever the `control` block returns, but it does a bunch of stuff
-behind the scenes:
+Wrap a `control` block around the code's original behavior, and wrap `candidate`
+around the new behavior. The `science` block will always return whatever the
+`control` block returns, but it does a bunch of stuff behind the scenes:
 
 * Decides whether or not to run `candidate`,
 * Runs `candidate` before `control` 50% of the time,
@@ -29,32 +36,43 @@ behind the scenes:
 * Swallows any exceptions raised by the candidate behavior, and
 * Publishes all this information for tracking and reporting.
 
-## Making Science Useful
+## Making science useful
 
-(Talk about subclassing `Dat::Science::Experiment` and setting
-`Dat::Science.experiment`)
+The example above will run, but it's not particularly helpful. The `candidate`
+block runs every time, and none of the results get published. Let's fix that.
+
+Create an app-specific sublass of `Dat::Science::Experiment`. This makes it easy
+to add custom behavior for enabling/disabling/throttling experiments and
+publishing results.
 
 ```ruby
 require "dat/science"
 
-module FooCorp
+module Initech
   class Experiment < Dat::Science::Experiment
     def enabled?
-      # See "Ramping up Experiments" below.
+      # See "Ramping up experiments" below.
     end
 
     def publish(name, payload)
-      # See "Publishing Results" below.
+      # See "Publishing results" below.
     end
   end
 end
 ```
 
+After creating a subclass, tell `Dat::Science` to instantiate it any time the
+`science` helper is called:
+
 ```ruby
-Dat::Science.experiment = FooCorp::Experiment
+Dat::Science.experiment = Initech::Experiment
 ```
 
-### Ramping up Experiments
+### Ramping up experiments
+
+By default the `candidate` block of an experiment will run 100% of the time.
+This is often a really bad idea when testing live. `Experiment#enabled?` can be
+overridden to run all candidates, say, 10% of the time:
 
 ```ruby
 def enabled?
@@ -62,19 +80,33 @@ def enabled?
 end
 ```
 
+Or, even better, use a feature flag library like [Flipper][]. Delegating the
+decision makes it easy to make different decisions for each experiment.
+
+[Flipper]: https://github.com/jnunemaker/flipper
+
 ```ruby
 def enabled?
-  Flipper[name].enabled?
+  Initech.flipper[name].enabled?
 end
 ```
 
-### Publishing Results
+### Publishing results
+
+By default the results of an experiment are discarded. This isn't very useful.
+`Experiment#publish` can be overridden to publish results via any
+instrumentation mechansim, which makes it easy to graph durations or
+matches/mismatches and store results. The only two events published by an
+experiment are `match` when the result of the control and candidate behaviors
+are the same, and `mismatch` when they aren't.
 
 ```ruby
-def publish(name, payload)
-  FooCorp.instrument "science.#{name}", payload
+def publish(event, payload)
+  Initech.instrument "science.#{event}", payload
 end
 ```
+
+The published `payload` is a Symbol-keyed Hash:
 
 ```ruby
 {
@@ -94,9 +126,31 @@ end
 }
 ```
 
+The `:candidate` and `:control` Hashes have the same keys:
+
+* `:duration` is the execution in ms, expressed as a float.
+* `:exception` is a reference to any raised exception or `nil`.
+* `:value` is the result of the block.
+
+`:first` is either `:candidate` or `:control`, depending on which block was run
+first during the experiment.
+
 #### Adding Context
 
-(using `e.context`)
+It's often useful to add more information to your experimental results, and
+`Experiment#context` makes it easy:
+
+```ruby
+science "widget-permissions" do |experiment|
+  experiment.context :user => user
+
+  experiment.control   { model.check_user(user).valid? } # old way
+  experiment.candidate { user.can? :read, model } # new way
+end
+```
+
+`context` takes a Symbol-keyed Hash of additional information to
+publish and merges it with the default payload.
 
 ## Hacking on Science
 
