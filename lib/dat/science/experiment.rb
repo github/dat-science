@@ -50,6 +50,8 @@ module Dat
       def run
         return run_control unless candidate? && enabled?
 
+        timestamp = Time.now
+
         if control_runs_first?
           control   = observe_control
           candidate = observe_candidate
@@ -59,6 +61,7 @@ module Dat
         end
 
         payload = {
+          :timestamp => timestamp,
           :candidate => candidate.payload,
           :control   => control.payload,
           :first     => control_runs_first? ? :control : :candidate
