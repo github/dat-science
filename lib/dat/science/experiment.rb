@@ -9,8 +9,8 @@ module Dat
       # Public: The name of this experiment.
       attr_reader :name
 
-      # Public: Create a new experiment instance. `self` is yielded to
-      # an optional `block` if it's provided.
+      # Public: Create a new experiment instance. `self` is yielded to an
+      # optional `block` if it's provided.
       def initialize(name, &block)
         @candidate  = nil
         @context    = { :experiment => name }
@@ -20,37 +20,37 @@ module Dat
         yield self if block_given?
       end
 
-      # Public: Add a Hash of `payload` data to be included when events
-      # are published.
-      def context(payload)
-        @context.merge! payload
-      end
-
-      # Public: Declare the control behavior `block` for this
-      # experiment. Returns `block`.
-      def control(&block)
-        @control = block
-      end
-
-      # Public: Declare the candidate behavior `block` for this
-      # experiment. Returns `block`.
+      # Public: Declare the candidate behavior `block` for this experiment.
+      # Returns `block`.
       def candidate(&block)
-        @candidate = block
+        @candidate = block if block
+        @candidate
+      end
+
+      # Public: Add a Hash of `payload` data to be included when events are
+      # published or returns the current context if `payload` is `nil`.
+      def context(payload = nil)
+        @context.merge! payload if payload
+        @context
+      end
+
+      # Public: Declare the control behavior `block` for this experiment.
+      # Returns `block`.
+      def control(&block)
+        @control = block if block
+        @control
       end
 
       # Public: Run the control and candidate behaviors, timing each and
-      # comparing the results. The run order is randomized. Returns the
-      # control behavior's result.
+      # comparing the results. The run order is randomized. Returns the control
+      # behavior's result.
       #
-      # If the experiment is disabled or candidate behavior isn't
-      # provided the control behavior's result will be returned
-      # immediately.
+      # If the experiment is disabled or candidate behavior isn't provided the
+      # control behavior's result will be returned immediately.
       def run
         return run_control unless candidate? && enabled?
 
-        control_goes_first = rand(2) == 0
-
-        if control_goes_first
+        if control_runs_first?
           control   = observe_control
           candidate = observe_candidate
         else
@@ -61,10 +61,10 @@ module Dat
         payload = {
           :candidate => candidate.payload,
           :control   => control.payload,
-          :first     => control_goes_first ? :control : :candidate
+          :first     => control_runs_first? ? :control : :candidate
         }
 
-        kind = control == candidate ? "match" : "mismatch"
+        kind = control == candidate ? :match : :mismatch
         publish_with_context kind, payload
 
         raise control.exception if control.raised?
@@ -76,7 +76,13 @@ module Dat
 
       # Internal: Does this experiment have candidate behavior?
       def candidate?
-        !!@candidate
+        !!candidate
+      end
+
+      # Internal: Should the control behavior run first?
+      def control_runs_first?
+        return @control_runs_first if defined? @control_runs_first
+        @control_runs_first = rand(2) == 0
       end
 
       # Internal: Is this experiment enabled? More specifically, should
@@ -119,16 +125,17 @@ module Dat
 
       # Internal: Call `publish`, merging the `payload` with `context`.
       def publish_with_context(event, payload)
-        publish event, @context.merge(payload)
+        publish event, context.merge(payload)
       end
+
       # Internal: Run the candidate behavior and return its result.
       def run_candidate
-        @candidate.call
+        candidate.call
       end
 
       # Internal: Run the control behavior and return its result.
       def run_control
-        @control.call
+        control.call
       end
     end
   end
