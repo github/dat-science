@@ -11,7 +11,7 @@ Tests can help guide your refactoring, but you really want to compare the
 current and new behaviors live, under load.
 
 ```ruby
-require "dat/science/experiment"
+require "dat/science"
 
 class MyApp::Widget
   def allows?(user)
