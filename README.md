@@ -109,6 +109,8 @@ The published `payload` is a Symbol-keyed Hash:
 
 ```ruby
 {
+  :experiment => "widget-permissions",
+
   :candidate => {
     :duration  => 2.5,
     :exception => nil,
@@ -132,7 +134,7 @@ The `:candidate` and `:control` Hashes have the same keys:
 * `:value` is the result of the block.
 
 `:first` is either `:candidate` or `:control`, depending on which block was run
-first during the experiment.
+first during the experiment. `:experiment` is the name of the experiment.
 
 #### Adding Context
 
