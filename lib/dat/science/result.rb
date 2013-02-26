@@ -1,7 +1,7 @@
 module Dat
-
-  # Internal. The value of a watched behavior.
   module Science
+
+    # Internal. The output of running of an observed behavior.
     class Result
       attr_reader :duration
       attr_reader :exception
@@ -14,7 +14,7 @@ module Dat
       end
 
       def ==(other)
-        return false unless other.is_a? Science::Result
+        return false unless other.is_a? Dat::Science::Result
 
         values_are_equal = other.value == value
         both_raised      = other.raised? && raised?
