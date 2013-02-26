@@ -106,7 +106,7 @@ class DatScienceExperimentTest < MiniTest::Unit::TestCase
     assert_equal "foo", payload[:experiment]
     assert_equal :control, payload[:first]
 
-    assert (Time.now.to_i - payload[:timestamp].to_i) < 10
+    assert_in_delta Time.now.to_f, payload[:timestamp].to_f, 2.0
 
     assert payload[:control][:duration]
     assert_nil payload[:control][:exception]
