@@ -39,7 +39,7 @@ around the new behavior. The `science` block will always return whatever the
 ## Making science useful
 
 The example above will run, but it's not particularly helpful. The `candidate`
-block runs every time, and none of the results get published. Let's fix by
+block runs every time, and none of the results get published. Let's fix that by
 creating an app-specific sublass of `Dat::Science::Experiment`. This makes it
 easy to add custom behavior for enabling/disabling/throttling experiments and
 publishing results.
