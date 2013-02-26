@@ -139,7 +139,7 @@ first during the experiment. `:experiment` is the name of the experiment.
 
 #### Adding context
 
-It's often useful to add more information to your experimental results, and
+It's often useful to add more information to your results, and
 `Experiment#context` makes it easy:
 
 ```ruby
