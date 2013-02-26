@@ -37,7 +37,7 @@ around the new behavior. `experiment.run` will always return whatever the
 * Publishes all this information for tracking and reporting.
 
 If you'd like a bit less verbosity, the `Dat::Science#science` helper
-instantiates an experiment and automatically calls `run`:
+instantiates an experiment and calls `run`:
 
 ```ruby
 require "dat/science"
