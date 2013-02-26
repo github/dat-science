@@ -38,11 +38,11 @@ around the new behavior. The `science` block will always return whatever the
 
 ## Making science useful
 
-The example above will run, but it's not particularly helpful. The
-`candidate` block runs every time, and none of the results get
-published. Let's fix by creating an app-specific sublass of
-`Dat::Science::Experiment`. This makes it easy to add custom behavior
-for enabling/disabling/throttling experiments and publishing results.
+The example above will run, but it's not particularly helpful. The `candidate`
+block runs every time, and none of the results get published. Let's fix by
+creating an app-specific sublass of `Dat::Science::Experiment`. This makes it
+easy to add custom behavior for enabling/disabling/throttling experiments and
+publishing results.
 
 ```ruby
 require "dat/science"
@@ -80,7 +80,8 @@ end
 ```
 
 Or, even better, use a feature flag library like [Flipper][]. Delegating the
-decision makes it easy to make different decisions for each experiment.
+decision makes it easy to define different rules for each experiment, and can
+help keep all your entropy concerns in one place.
 
 [Flipper]: https://github.com/jnunemaker/flipper
 
@@ -150,13 +151,12 @@ science "widget-permissions" do |experiment|
 end
 ```
 
-`context` takes a Symbol-keyed Hash of additional information to
-publish and merges it with the default payload.
+`context` takes a Symbol-keyed Hash of additional information to publish and
+merges it with the default payload.
 
 ## Hacking on science
 
-Be on a Unixy box. Make sure a modern Bundler is available.
-`script/test` runs the unit tests. All development dependencies will
-be installed automatically if they're not available. Dat science
-happens primarily on Ruby 1.9.3 and 1.8.7, but science should be
-universal.
+Be on a Unixy box. Make sure a modern Bundler is available. `script/test` runs
+the unit tests. All development dependencies will be installed automatically if
+they're not available. Dat science happens primarily on Ruby 1.9.3 and 1.8.7,
+but science should be universal.
