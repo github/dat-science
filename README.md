@@ -13,7 +13,7 @@ current and new behaviors live, under load.
 ```ruby
 require "dat/science"
 
-class Initech::Widget
+class MyApp::Widget
   include Dat::Science
 
   def allows?(user)
@@ -47,7 +47,7 @@ publishing results.
 ```ruby
 require "dat/science"
 
-module Initech
+module MyApp
   class Experiment < Dat::Science::Experiment
     def enabled?
       # See "Ramping up experiments" below.
@@ -64,7 +64,7 @@ After creating a subclass, tell `Dat::Science` to instantiate it any time the
 `science` helper is called:
 
 ```ruby
-Dat::Science.experiment = Initech::Experiment
+Dat::Science.experiment = MyApp::Experiment
 ```
 
 ### Ramping up experiments
@@ -87,7 +87,7 @@ help keep all your entropy concerns in one place.
 
 ```ruby
 def enabled?
-  Initech.flipper[name].enabled?
+  MyApp.flipper[name].enabled?
 end
 ```
 
@@ -102,7 +102,7 @@ are the same, and `mismatch` when they aren't.
 
 ```ruby
 def publish(event, payload)
-  Initech.instrument "science.#{event}", payload
+  MyApp.instrument "science.#{event}", payload
 end
 ```
 
