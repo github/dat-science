@@ -11,16 +11,16 @@ Tests can help guide your refactoring, but you really want to compare the
 current and new behaviors live, under load.
 
 ```ruby
-require "dat/science"
+require "dat/science/experiment"
 
 class MyApp::Widget
-  include Dat::Science
-
   def allows?(user)
-    science "widget-permissions" do |experiment|
-      experiment.control   { model.check_user(user).valid? } # old way
-      experiment.candidate { user.can? :read, model } # new way
+    experiment = Dat::Science::Experiment.new "widget-permissions" do |e|
+      e.control   { model.check_user(user).valid? } # old way
+      e.candidate { user.can? :read, model } # new way
     end
+
+    experiment.run
   end
 end
 ```
@@ -36,13 +36,31 @@ around the new behavior. The `science` block will always return whatever the
 * Swallows any exceptions raised by the candidate behavior, and
 * Publishes all this information for tracking and reporting.
 
+If you'd like a bit less verbosity, `Dat::Science#science` is a little bit of
+sugar that instantiates an experiment and automatically calls `run`:
+
+```ruby
+require "dat/science"
+
+class MyApp::Widget
+  include Dat::Science
+
+  def allows?(user)
+    science "widget-permissions" do |e|
+      e.control   { model.check_user(user).valid? } # old way
+      e.candidate { user.can? :read, model } # new way
+    end
+  end
+end
+```
+
 ## Making science useful
 
-The example above will run, but it's not particularly helpful. The `candidate`
-block runs every time, and none of the results get published. Let's fix that by
-creating an app-specific sublass of `Dat::Science::Experiment`. This makes it
-easy to add custom behavior for enabling/disabling/throttling experiments and
-publishing results.
+The examples above will run, but they're not particularly helpful. The
+`candidate` block runs every time, and none of the results get
+published. Let's fix that by creating an app-specific sublass of
+`Dat::Science::Experiment`. This makes it easy to add custom behavior
+for enabling/disabling/throttling experiments and publishing results.
 
 ```ruby
 require "dat/science"
