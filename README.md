@@ -173,6 +173,24 @@ end
 `context` takes a Symbol-keyed Hash of additional information to publish and
 merges it with the default payload.
 
+#### Transforming results
+
+If the result of science is more verbose than you need, you can use a transform
+operation to publish only the research you need. The transformation will
+also be used for comparing results. The non-transformed control result will
+still be returned.
+
+If the transformation raises an exception, the non-transformed result will be
+compared and published.
+
+```ruby
+science "widget-loading" do |e|
+  e.control   { Widget.scope.scope.all }
+  e.candidate { Widget.new_scope.all }
+  e.transform { |result| result.map(&:id).sort }
+end
+```
+
 ## Hacking on science
 
 Be on a Unixy box. Make sure a modern Bundler is available. `script/test` runs

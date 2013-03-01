@@ -222,4 +222,52 @@ class DatScienceExperimentTest < MiniTest::Unit::TestCase
     refute_nil payload[:control][:exception]
     refute_nil payload[:candidate][:exception]
   end
+
+  def test_custom_comparisons
+    e = Experiment.new "foo"
+    e.control   { [3, 2, 1] }
+    e.candidate { [1, 2, 3] }
+
+    e.transform { |res| res.sort }
+
+    assert_equal [3, 2, 1], e.run
+
+    event, payload = Experiment.published.first
+    refute_nil event
+    refute_nil payload
+
+    assert_equal :match, event
+  end
+
+  def test_custom_comparisons_are_reported_with_custom_values
+    e = Experiment.new "foo"
+    e.control   { [5, 4, 3, 2, 1] }
+    e.candidate { [1, 2, 3] }
+
+    e.transform { |res| res.sort }
+
+    assert_equal [5, 4, 3, 2, 1], e.run
+
+    event, payload = Experiment.published.first
+    assert_equal :mismatch, event
+
+    assert_equal [1, 2, 3, 4, 5], payload[:control][:value]
+    assert_equal [1, 2, 3], payload[:candidate][:value]
+  end
+
+  def test_custom_comparisons_that_raise_exceptions_just_use_the_regular_value
+    e = Experiment.new "foo"
+    e.control   { [5, 4, 3, 2, 1] }
+    e.candidate { [1, 2, 3] }
+
+    e.transform { |res| 1 / 0 }
+
+    assert_equal [5, 4, 3, 2, 1], e.run
+
+    event, payload = Experiment.published.first
+    assert_equal :mismatch, event
+
+    assert_equal [5, 4, 3, 2, 1], payload[:control][:value]
+    assert_equal [1, 2, 3],       payload[:candidate][:value]
+  end
 end
