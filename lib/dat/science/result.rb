@@ -5,12 +5,14 @@ module Dat
     class Result
       attr_reader :duration
       attr_reader :exception
-      attr_reader :value
+      attr_reader :transform
+      attr_reader :original_value
 
-      def initialize(value, duration, exception)
-        @duration  = duration
-        @exception = exception
-        @value     = value
+      def initialize(value, duration, exception, transform = nil)
+        @duration       = duration
+        @exception      = exception
+        @original_value = value
+        @transform      = transform
       end
 
       def ==(other)
@@ -38,6 +40,21 @@ module Dat
 
       def raised?
         !!exception
+      end
+
+      def value
+        @transformed_value = transformed unless defined?(@transformed_value)
+        @transformed_value
+      end
+
+      def transformed
+        return @original_value unless transform
+
+        begin
+          return transform.call @original_value
+        rescue
+          @original_value
+        end
       end
     end
   end

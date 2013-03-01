@@ -41,6 +41,13 @@ module Dat
         @control
       end
 
+      # Public: Declare transform behavior on results for comparison
+      # returns `block`
+      def transform(&block)
+        @transform = block if block
+        @transform
+      end
+
       # Public: Run the control and candidate behaviors, timing each and
       # comparing the results. The run order is randomized. Returns the control
       # behavior's result.
@@ -72,7 +79,7 @@ module Dat
 
         raise control.exception if control.raised?
 
-        control.value
+        control.original_value
       end
 
       protected
@@ -80,6 +87,11 @@ module Dat
       # Internal: Does this experiment have candidate behavior?
       def candidate?
         !!candidate
+      end
+
+      # Internal: Did we get a custom transform?
+      def transform?
+        !!transform
       end
 
       # Internal: Should the control behavior run first?
@@ -107,7 +119,7 @@ module Dat
         end
 
         duration = (Time.now - start) * 1000
-        Science::Result.new value, duration, raised
+        Science::Result.new value, duration, raised, transform
       end
 
 
