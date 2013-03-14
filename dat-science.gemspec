@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name          = "dat-science"
-  gem.version       = "1.1.0"
+  gem.version       = "1.2.0"
   gem.authors       = ["John Barnette", "Rick Bradley"]
   gem.email         = ["jbarnette@github.com"]
   gem.description   = "Gradually test, measure, and track refactored code."
