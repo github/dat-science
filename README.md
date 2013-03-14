@@ -85,6 +85,19 @@ After creating a subclass, tell `Dat::Science` to instantiate it any time the
 Dat::Science.experiment = MyApp::Experiment
 ```
 
+### Controlling comparison
+
+By default the results of the `candidate` and `control` blocks are compared
+with `==`. Use `comparator` to do something more fancy:
+
+```ruby
+science "loose-comparison" do |e|
+  e.control    { "vmg" }
+  e.candidate  { "VMG" }
+  e.comparator { |a, b| a.downcase == b.downcase }
+end
+```
+
 ### Ramping up experiments
 
 By default the `candidate` block of an experiment will run 100% of the time.
@@ -172,6 +185,25 @@ end
 
 `context` takes a Symbol-keyed Hash of additional information to publish and
 merges it with the default payload.
+
+#### Keeping it clean
+
+Sometimes the things you're comparing can be huge, and there's no good way
+to do science against something simpler. Use a `cleaner` to publish a
+simple version of a big nasty object graph:
+
+```ruby
+science "huge-results" do |e|
+  e.control   { OldAndBusted.huge_results_for query }
+  e.candidate { NewHotness.huge_results_for query }
+  e.cleaner   { |result| result.count }
+end
+```
+
+The results of the `control` and `candidate` blocks will be run through the
+`cleaner` You could get the same behavior by calling `count` in the blocks,
+but the `cleaner` makes it easier to keep things in sync. The original
+`control` result is still returned.
 
 ## Hacking on science
 
