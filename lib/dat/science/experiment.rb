@@ -13,6 +13,7 @@ module Dat
       # optional `block` if it's provided.
       def initialize(name, &block)
         @candidate  = nil
+        @cleaner    = lambda { |r| r }
         @context    = { :experiment => name }
         @control    = nil
         @name       = name
@@ -25,6 +26,19 @@ module Dat
       def candidate(&block)
         @candidate = block if block
         @candidate
+      end
+
+      # Public: Declare a cleaner `block` to scrub the result before it's
+      # published. `block` is called twice, once with the result of
+      # the control behavior and once with the result of the candidate.
+      # Exceptions during cleaning are treated as if they were raised
+      # in a candidate or control behavior block: They're reported as part
+      # of the result.
+      #
+      # Returns `block`.
+      def cleaner(&block)
+        @cleaner = block if block
+        @cleaner
       end
 
       # Public: Add a Hash of `payload` data to be included when events are
@@ -101,7 +115,7 @@ module Dat
         start = Time.now
 
         begin
-          value = block.call
+          value = run_cleaner block.call
         rescue => ex
           raised = ex
         end
@@ -134,6 +148,11 @@ module Dat
       # Internal: Run the candidate behavior and return its result.
       def run_candidate
         candidate.call
+      end
+
+      # Internal: Run the cleaner behavior and return its result.
+      def run_cleaner(value)
+        cleaner.call value
       end
 
       # Internal: Run the control behavior and return its result.

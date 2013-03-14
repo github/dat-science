@@ -36,6 +36,20 @@ class DatScienceExperimentTest < MiniTest::Unit::TestCase
     assert_same b, e.candidate
   end
 
+  def test_cleaner
+    e = Experiment.new "foo"
+    e.control   { "bar" }
+    e.candidate { "baz" }
+    e.cleaner   { |value| value.upcase }
+
+    e.run
+
+    event, payload = Experiment.published.first
+
+    assert_equal "BAR", payload[:control][:value]
+    assert_equal "BAZ", payload[:candidate][:value]
+  end
+
   def test_context_default
     e = Experiment.new "foo"
 
