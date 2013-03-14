@@ -36,6 +36,41 @@ class DatScienceExperimentTest < MiniTest::Unit::TestCase
     assert_same b, e.candidate
   end
 
+  def test_cleaner
+    e = Experiment.new "foo"
+    e.control   { "bar" }
+    e.candidate { "baz" }
+    e.cleaner   { |value| value.upcase }
+
+    e.run
+
+    event, payload = Experiment.published.first
+
+    assert_equal "BAR", payload[:control][:value]
+    assert_equal "BAZ", payload[:candidate][:value]
+  end
+
+  def test_cleaner_still_returns_unclean_result
+    e = Experiment.new "foo"
+    e.control   { "bar" }
+    e.candidate { "baz" }
+    e.cleaner   { |v| v.upcase }
+
+    assert_equal "bar", e.run
+  end
+
+  def test_comparator
+    e = Experiment.new "foo"
+    e.control { "bar" }
+    e.candidate { "bar" }
+    e.comparator { |a, b| false }
+
+    e.run
+
+    event, payload = Experiment.published.first
+    assert_equal :mismatch, event
+  end
+
   def test_context_default
     e = Experiment.new "foo"
 
