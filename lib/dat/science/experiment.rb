@@ -14,6 +14,7 @@ module Dat
       def initialize(name, &block)
         @candidate  = nil
         @cleaner    = lambda { |r| r }
+        @comparator = lambda { |a, b| a == b }
         @context    = { :experiment => name }
         @control    = nil
         @name       = name
@@ -39,6 +40,15 @@ module Dat
       def cleaner(&block)
         @cleaner = block if block
         @cleaner
+      end
+
+      # Public: Declare a comparator `block`. Results are compared with
+      # `==` by default.
+      #
+      # Returns `block`.
+      def comparator(&block)
+        @comparator = block if block
+        @comparator
       end
 
       # Public: Add a Hash of `payload` data to be included when events are
@@ -121,7 +131,7 @@ module Dat
         end
 
         duration = (Time.now - start) * 1000
-        Science::Result.new value, duration, raised
+        Science::Result.new value, duration, raised, &comparator
       end
 
 

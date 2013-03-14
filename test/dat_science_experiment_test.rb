@@ -50,6 +50,18 @@ class DatScienceExperimentTest < MiniTest::Unit::TestCase
     assert_equal "BAZ", payload[:candidate][:value]
   end
 
+  def test_comparator
+    e = Experiment.new "foo"
+    e.control { "bar" }
+    e.candidate { "bar" }
+    e.comparator { |a, b| false }
+
+    e.run
+
+    event, payload = Experiment.published.first
+    assert_equal :mismatch, event
+  end
+
   def test_context_default
     e = Experiment.new "foo"
 

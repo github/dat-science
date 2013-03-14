@@ -7,16 +7,17 @@ module Dat
       attr_reader :exception
       attr_reader :value
 
-      def initialize(value, duration, exception)
-        @duration  = duration
-        @exception = exception
-        @value     = value
+      def initialize(value, duration, exception, &comparator)
+        @comparator = comparator
+        @duration   = duration
+        @exception  = exception
+        @value      = value
       end
 
       def ==(other)
         return false unless other.is_a? Dat::Science::Result
 
-        values_are_equal = other.value == value
+        values_are_equal = comparator.call other.value, value
         both_raised      = other.raised? && raised?
         neither_raised   = !other.raised? && !raised?
 
@@ -39,6 +40,10 @@ module Dat
       def raised?
         !!exception
       end
+
+      protected
+
+      attr_reader :comparator
     end
   end
 end

@@ -85,6 +85,19 @@ After creating a subclass, tell `Dat::Science` to instantiate it any time the
 Dat::Science.experiment = MyApp::Experiment
 ```
 
+### Controlling comparison
+
+By default the results of the `candidate` and `control` blocks are compared
+with `==`. Use `comparator` to do something more fancy:
+
+```ruby
+science "loose-comparison" do |e|
+  e.control    { "vmg" }
+  e.candidate  { "VMG" }
+  e.comparator { |a, b| a.downcase == b.downcase }
+end
+```
+
 ### Ramping up experiments
 
 By default the `candidate` block of an experiment will run 100% of the time.
