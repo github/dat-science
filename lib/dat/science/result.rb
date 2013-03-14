@@ -5,19 +5,20 @@ module Dat
     class Result
       attr_reader :duration
       attr_reader :exception
+      attr_reader :experiment
       attr_reader :value
 
-      def initialize(value, duration, exception, &comparator)
-        @comparator = comparator
+      def initialize(experiment, value, duration, exception)
         @duration   = duration
         @exception  = exception
+        @experiment = experiment
         @value      = value
       end
 
       def ==(other)
         return false unless other.is_a? Dat::Science::Result
 
-        values_are_equal = comparator.call other.value, value
+        values_are_equal = experiment.compare(other.value, value)
         both_raised      = other.raised? && raised?
         neither_raised   = !other.raised? && !raised?
 
@@ -34,16 +35,16 @@ module Dat
       end
 
       def payload
-        { :duration => duration, :exception => exception, :value => value }
+        {
+          :duration  => duration,
+          :exception => exception,
+          :value     => experiment.clean(value)
+        }
       end
 
       def raised?
         !!exception
       end
-
-      protected
-
-      attr_reader :comparator
     end
   end
 end

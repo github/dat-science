@@ -202,7 +202,8 @@ end
 
 The results of the `control` and `candidate` blocks will be run through the
 `cleaner` You could get the same behavior by calling `count` in the blocks,
-but the `cleaner` makes it easier to keep things in sync.
+but the `cleaner` makes it easier to keep things in sync. The original
+`control` result is still returned.
 
 ## Hacking on science
 

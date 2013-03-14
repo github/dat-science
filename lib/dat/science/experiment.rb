@@ -29,6 +29,11 @@ module Dat
         @candidate
       end
 
+      # Internal: Run the cleaner on a value.
+      def clean(value)
+        cleaner.call value
+      end
+
       # Public: Declare a cleaner `block` to scrub the result before it's
       # published. `block` is called twice, once with the result of
       # the control behavior and once with the result of the candidate.
@@ -40,6 +45,11 @@ module Dat
       def cleaner(&block)
         @cleaner = block if block
         @cleaner
+      end
+
+      # Internal: Run the comparator on two values.
+      def compare(a, b)
+        comparator.call a, b
       end
 
       # Public: Declare a comparator `block`. Results are compared with
@@ -125,13 +135,13 @@ module Dat
         start = Time.now
 
         begin
-          value = run_cleaner block.call
+          value = block.call
         rescue => ex
           raised = ex
         end
 
         duration = (Time.now - start) * 1000
-        Science::Result.new value, duration, raised, &comparator
+        Science::Result.new self, value, duration, raised
       end
 
 
@@ -158,11 +168,6 @@ module Dat
       # Internal: Run the candidate behavior and return its result.
       def run_candidate
         candidate.call
-      end
-
-      # Internal: Run the cleaner behavior and return its result.
-      def run_cleaner(value)
-        cleaner.call value
       end
 
       # Internal: Run the control behavior and return its result.

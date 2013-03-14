@@ -50,6 +50,15 @@ class DatScienceExperimentTest < MiniTest::Unit::TestCase
     assert_equal "BAZ", payload[:candidate][:value]
   end
 
+  def test_cleaner_still_returns_unclean_result
+    e = Experiment.new "foo"
+    e.control   { "bar" }
+    e.candidate { "baz" }
+    e.cleaner   { |v| v.upcase }
+
+    assert_equal "bar", e.run
+  end
+
   def test_comparator
     e = Experiment.new "foo"
     e.control { "bar" }
