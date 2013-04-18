@@ -3,7 +3,7 @@ require "mocha/setup"
 require "dat/analysis"
 
 # helper class to provide mismatch results
-class TestMismatchAnalysis < Dat::Analysis
+class TestCookedAnalyzer < Dat::Analysis
   attr_accessor :mismatches
 
   def initialize(experiment_name)
@@ -45,80 +45,75 @@ class TestMismatchAnalysis < Dat::Analysis
   def print(*args) end
 end
 
-context "Dat::Analysis when subclassed" do
-  setup do
+class DatAnalysisSubclassingTest < MiniTest::Unit::TestCase
+
+  def setup
     @experiment_name = 'test-suite-experiment'
-    @analyzer = TestCookedAnalyzer.new @experiment_name
+    @analyzer = ::TestCookedAnalyzer.new @experiment_name
   end
 
-  context "when count is overridden" do
-    test "is 0 when there are no mismatches" do
-      assert_equal 0, @analyzer.count
-    end
-
-    test "returns the count of mismatches" do
-      @analyzer.mismatches.push 'mismatch'
-      @analyzer.mismatches.push 'mismatch'
-      assert_equal 2, @analyzer.count
-    end
+  def test_is_0_when_count_is_overridden_and_there_are_no_mismatches
+    assert_equal 0, @analyzer.count
   end
 
-  context "fetch, when read is overridden" do
-    test "returns nil when there are no mismatches returned from read" do
-      assert_nil @analyzer.fetch
-    end
-
-    test "returns the cooked version of the next mismatch returned from read" do
-      @analyzer.mismatches.push 'mismatch'
-      assert_equal 'cooked-mismatch', @analyzer.fetch
-    end
+  def test_returns_the_count_of_mismatches_when_count_is_overridden
+    @analyzer.mismatches.push 'mismatch'
+    @analyzer.mismatches.push 'mismatch'
+    assert_equal 2, @analyzer.count
   end
 
-  context "when cook is overridden" do
-    test "raw returns nil when no mismatches have been fetched" do
-      assert_nil @analyzer.raw
-    end
+  def test_fetch_returns_nil_when_read_is_overridden_and_read_returns_no_mismatches
+    assert_nil @analyzer.fetch
+  end
 
-    test "current returns nil result when no mismatches have been fetched" do
-      assert_nil @analyzer.current
-    end
+  def test_fetch_returns_the_cooked_version_of_the_next_mismatch_from_read_when_read_is_overridden
+    @analyzer.mismatches.push 'mismatch'
+    assert_equal 'cooked-mismatch', @analyzer.fetch
+  end
 
-    test "raw returns nil when last fetched returned no results" do
-      @analyzer.fetch
-      assert_nil @analyzer.raw
-    end
+  def test_raw_returns_nil_when_no_mismatches_have_been_fetched_and_cook_is_overridden
+    assert_nil @analyzer.raw
+  end
 
-    test "current returns nil result when last fetched returned no results" do
-      @analyzer.fetch
-      assert_nil @analyzer.current
-    end
+  def test_current_returns_nil_when_no_mismatches_have_been_fetch_and_cook_is_overridden
+    assert_nil @analyzer.current
+  end
 
-    test "raw returns an unprocessed version of the most recent mismatch" do
-      @analyzer.mismatches.push 'mismatch-1'
-      result = @analyzer.fetch
-      assert_equal 'mismatch-1', @analyzer.raw
-    end
+  def test_raw_returns_nil_when_last_fetched_returns_no_results_and_cook_is_overridden
+    @analyzer.fetch
+    assert_nil @analyzer.raw
+  end
 
-    test "current returns a cooked version of the most recent mismatch" do
-      @analyzer.mismatches.push 'mismatch-1'
-      result = @analyzer.fetch
-      assert_equal 'cooked-mismatch-1', @analyzer.current
-    end
+  def test_current_returns_nil_when_last_fetched_returns_no_results_and_cook_is_overridden
+    @analyzer.fetch
+    assert_nil @analyzer.current
+  end
 
-    test "raw updates with later fetches" do
-      @analyzer.mismatches.push 'mismatch-1'
-      @analyzer.mismatches.push 'mismatch-2'
-      @analyzer.fetch # discard the first one
-      @analyzer.fetch
-      assert_equal 'mismatch-1', @analyzer.raw
-    end
+  def test_raw_returns_unprocess_mismatch_when_cook_is_overridden
+    @analyzer.mismatches.push 'mismatch-1'
+    result = @analyzer.fetch
+    assert_equal 'mismatch-1', @analyzer.raw
+  end
 
-    test "current updates with later fetches" do
-      @analyzer.mismatches.push 'mismatch-1'
-      @analyzer.mismatches.push 'mismatch-2'
-      @analyzer.fetch # discard the first one
-      @analyzer.fetch
-      assert_equal 'cooked-mismatch-1', @analyzer.current
-    end
+  def test_current_returns_a_cooked_mismatch_when_cook_is_overridden
+    @analyzer.mismatches.push 'mismatch-1'
+    result = @analyzer.fetch
+    assert_equal 'cooked-mismatch-1', @analyzer.current
+  end
+
+  def test_raw_updates_with_later_fetches_when_cook_is_overridden
+    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push 'mismatch-2'
+    @analyzer.fetch # discard the first one
+    @analyzer.fetch
+    assert_equal 'mismatch-1', @analyzer.raw
+  end
+
+  def test_current_updates_with_later_fetches_when_cook_is_overridden
+    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push 'mismatch-2'
+    @analyzer.fetch # discard the first one
+    @analyzer.fetch
+    assert_equal 'cooked-mismatch-1', @analyzer.current
   end
 end
