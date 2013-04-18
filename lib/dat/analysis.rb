@@ -1,15 +1,4 @@
 module Dat
-  class Analysis
-  end
-end
-
-require 'dat/analysis/library'
-require 'dat/analysis/matcher'
-require 'dat/analysis/result'
-require 'dat/analysis/registry'
-require 'dat/analysis/tally'
-
-module Dat
     # Public: Analyze the findings of an Experiment
     #
     # Typically implementors will wish to subclass this to provide their own
@@ -447,3 +436,9 @@ module Dat
     end
   end
 end
+
+require 'dat/analysis/library'
+require 'dat/analysis/matcher'
+require 'dat/analysis/result'
+require 'dat/analysis/registry'
+require 'dat/analysis/tally'
