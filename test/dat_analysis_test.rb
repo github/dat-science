@@ -45,7 +45,7 @@ end
 # supply a default `#readable` method to subclasses
 class TestSubclassRecognizer < Dat::Analysis::Matcher
   def readable
-    "experiment-formatter: #{result}"
+    "experiment-formatter: #{result['extra']}"
   end
 end
 
@@ -56,7 +56,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
     @analyzer = TestMismatchAnalysis.new @experiment_name
 
     @timestamp = Time.now
-    @raw_result = {
+    @result = {
       'experiment' => @experiment_name,
       'control'    => {
           'duration'  => 0.03,
@@ -69,9 +69,9 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
           'value'     => false,
         },
       'first'      => 'candidate',
+      'extra'      => 'bacon',
       'timestamp'  => @timestamp.to_s
     }
-    @result = Dat::Analysis::Result.new(@raw_result)
   end
 
   def test_preserves_the_experiment_name
@@ -128,14 +128,14 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   def test_analyze_outputs_default_results_summary_for_first_unrecognized_result_and_tally_summary_when_recognized_and_unrecognized_results_are_present
     matcher = Class.new(Dat::Analysis::Matcher) do
       def match?
-        result =~ /^known-/
+        result['extra'] =~ /^known-/
       end
     end
 
     @analyzer.add matcher
-    @analyzer.mismatches.push 'known-1'
-    @analyzer.mismatches.push 'unknown-1'
-    @analyzer.mismatches.push 'known-2'
+    @analyzer.mismatches.push @result.merge('extra' => 'known-1')
+    @analyzer.mismatches.push @result.merge('extra' => 'unknown-1')
+    @analyzer.mismatches.push @result.merge('extra' => 'known-2')
 
     @analyzer.expects(:summarize_unknown_result)
     @analyzer.analyze
@@ -144,14 +144,14 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   def test_analyze_returns_number_of_unanalyzed_results_when_recognized_and_unrecognized_results_are_present
     matcher = Class.new(Dat::Analysis::Matcher) do
       def match?
-        result =~ /^known-/
+        result['extra'] =~ /^known-/
       end
     end
 
     @analyzer.add matcher
-    @analyzer.mismatches.push 'known-1'
-    @analyzer.mismatches.push 'unknown-1'
-    @analyzer.mismatches.push 'known-2'
+    @analyzer.mismatches.push @result.merge('extra' => 'known-1')
+    @analyzer.mismatches.push @result.merge('extra' => 'unknown-1')
+    @analyzer.mismatches.push @result.merge('extra' => 'known-2')
 
     assert_equal 1, @analyzer.analyze
   end
@@ -159,44 +159,44 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   def test_analyze_leaves_current_result_set_to_first_unrecognized_result_when_recognized_and_unrecognized_results_are_present
     matcher = Class.new(Dat::Analysis::Matcher) do
       def match?
-        result =~ /^known/
+        result['extra'] =~ /^known/
       end
     end
 
     @analyzer.add matcher
-    @analyzer.mismatches.push 'known-1'
-    @analyzer.mismatches.push 'unknown-1'
-    @analyzer.mismatches.push 'known-2'
+    @analyzer.mismatches.push @result.merge('extra' => 'known-1')
+    @analyzer.mismatches.push @result.merge('extra' => 'unknown-1')
+    @analyzer.mismatches.push @result.merge('extra' => 'known-2')
 
     @analyzer.analyze
-    assert_equal 'unknown-1', @analyzer.current
+    assert_equal 'unknown-1', @analyzer.current['extra']
   end
 
   def test_analyze_leaves_recognized_result_counts_in_tally_when_recognized_and_unrecognized_results_are_present
     matcher1 = Class.new(Dat::Analysis::Matcher) do
       def self.name() "RecognizerOne" end
       def match?
-        result =~ /^known-1/
+        result['extra'] =~ /^known-1/
       end
     end
 
     matcher2 = Class.new(Dat::Analysis::Matcher) do
       def self.name() "RecognizerTwo" end
       def match?
-        result =~ /^known-2/
+        result['extra'] =~ /^known-2/
       end
     end
 
     @analyzer.add matcher1
     @analyzer.add matcher2
 
-    @analyzer.mismatches.push 'known-1-last'
-    @analyzer.mismatches.push 'unknown-1'
-    @analyzer.mismatches.push 'known-10'
-    @analyzer.mismatches.push 'known-20'
-    @analyzer.mismatches.push 'known-11'
-    @analyzer.mismatches.push 'known-21'
-    @analyzer.mismatches.push 'known-12'
+    @analyzer.mismatches.push @result.merge('extra' => 'known-1-last')
+    @analyzer.mismatches.push @result.merge('extra' => 'unknown-1')
+    @analyzer.mismatches.push @result.merge('extra' => 'known-10')
+    @analyzer.mismatches.push @result.merge('extra' => 'known-20')
+    @analyzer.mismatches.push @result.merge('extra' => 'known-11')
+    @analyzer.mismatches.push @result.merge('extra' => 'known-21')
+    @analyzer.mismatches.push @result.merge('extra' => 'known-12')
 
     @analyzer.analyze
 
@@ -209,21 +209,21 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   def test_analyze_proceeds_from_stop_point_when_analyzing_with_more_results
     matcher = Class.new(Dat::Analysis::Matcher) do
       def match?
-        result =~ /^known-/
+        result['extra'] =~ /^known-/
       end
     end
 
     @analyzer.add matcher
-    @analyzer.mismatches.push 'known-1'
-    @analyzer.mismatches.push 'unknown-1'
-    @analyzer.mismatches.push 'known-2'
-    @analyzer.mismatches.push 'unknown-2'
-    @analyzer.mismatches.push 'known-3'
+    @analyzer.mismatches.push @result.merge('extra' => 'known-1')
+    @analyzer.mismatches.push @result.merge('extra' => 'unknown-1')
+    @analyzer.mismatches.push @result.merge('extra' => 'known-2')
+    @analyzer.mismatches.push @result.merge('extra' => 'unknown-2')
+    @analyzer.mismatches.push @result.merge('extra' => 'known-3')
 
     assert_equal 3, @analyzer.analyze
-    assert_equal 'unknown-2', @analyzer.current
+    assert_equal 'unknown-2', @analyzer.current['extra']
     assert_equal 1, @analyzer.analyze
-    assert_equal 'unknown-1', @analyzer.current
+    assert_equal 'unknown-1', @analyzer.current['extra']
     assert_equal @analyzer.readable, @analyzer.last_printed
   end
 
@@ -231,27 +231,27 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
     matcher1 = Class.new(Dat::Analysis::Matcher) do
       def self.name() "RecognizerOne" end
       def match?
-        result =~ /^known-1/
+        result['extra'] =~ /^known-1/
       end
     end
 
     matcher2 = Class.new(Dat::Analysis::Matcher) do
       def self.name() "RecognizerTwo" end
       def match?
-        result =~ /^known-2/
+        result['extra'] =~ /^known-2/
       end
     end
 
     @analyzer.add matcher1
     @analyzer.add matcher2
 
-    @analyzer.mismatches.push 'known-1-last'
-    @analyzer.mismatches.push 'unknown-1'
-    @analyzer.mismatches.push 'known-10'
-    @analyzer.mismatches.push 'known-20'
-    @analyzer.mismatches.push 'known-11'
-    @analyzer.mismatches.push 'known-21'
-    @analyzer.mismatches.push 'known-12'
+    @analyzer.mismatches.push @result.merge('extra' => 'known-1-last')
+    @analyzer.mismatches.push @result.merge('extra' => 'unknown-1')
+    @analyzer.mismatches.push @result.merge('extra' => 'known-10')
+    @analyzer.mismatches.push @result.merge('extra' => 'known-20')
+    @analyzer.mismatches.push @result.merge('extra' => 'known-11')
+    @analyzer.mismatches.push @result.merge('extra' => 'known-21')
+    @analyzer.mismatches.push @result.merge('extra' => 'known-12')
 
     @analyzer.analyze  # proceed to first stop point
     @analyzer.analyze  # and continue analysis
@@ -459,35 +459,35 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   def test_result_has_an_useful_timestamp
     @analyzer.mismatches.push(@result)
     result = @analyzer.fetch
-    assert_equal @timestamp.to_i, @result.timestamp.to_i
+    assert_equal @timestamp.to_i, result.timestamp.to_i
   end
 
   def test_result_has_a_method_for_first
     @analyzer.mismatches.push(@result)
     result = @analyzer.fetch
-    assert_equal @raw_result['first'], result.first
+    assert_equal @result['first'], result.first
   end
 
   def test_result_has_a_method_for_control
     @analyzer.mismatches.push(@result)
     result = @analyzer.fetch
-    assert_equal @raw_result['control'], result.control
+    assert_equal @result['control'], result.control
   end
 
   def test_result_has_a_method_for_candidate
     @analyzer.mismatches.push(@result)
     result = @analyzer.fetch
-    assert_equal @raw_result['candidate'], result.candidate
+    assert_equal @result['candidate'], result.candidate
   end
 
   def test_result_has_a_method_for_experiment_name
     @analyzer.mismatches.push(@result)
     result = @analyzer.fetch
-    assert_equal @raw_result['experiment'], result.experiment_name
+    assert_equal @result['experiment'], result.experiment_name
   end
 
   def test_results_helper_methods_are_not_available_on_results_unless_loaded
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     result = @analyzer.fetch
 
     assert_raises(NoMethodError) do
@@ -617,12 +617,12 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
       end
 
       def readable
-        "recognized: #{result}"
+        "recognized: #{result['extra']}"
       end
     end
 
     @analyzer.add matcher
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result.merge('extra' => 'mismatch-1')
     @analyzer.fetch
     assert_nil @analyzer.summarize
     assert_equal "recognized: mismatch-1", @analyzer.last_printed
@@ -650,7 +650,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
     end
 
     @analyzer.add matcher
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result.merge('extra' => 'mismatch-1')
     @analyzer.fetch
     assert_nil @analyzer.summarize
     assert_equal "experiment-formatter: mismatch-1", @analyzer.last_printed
@@ -690,12 +690,12 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
       end
 
       def readable
-        "recognized: #{result}"
+        "recognized: #{result['extra']}"
       end
     end
 
     @analyzer.add matcher
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result.merge('extra' => 'mismatch-1')
     @analyzer.fetch
     assert_equal "recognized: mismatch-1", @analyzer.summary
   end
@@ -721,7 +721,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
     end
 
     @analyzer.add matcher
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result.merge('extra' => 'mismatch-1')
     @analyzer.fetch
     assert_equal "experiment-formatter: mismatch-1", @analyzer.summary
   end
