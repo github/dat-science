@@ -84,9 +84,9 @@ module Dat
             return summarize_unknown_result
           end
 
-          print "."
           fetch
           break if unknown?
+          summarize
           count_as_seen identify
         end
 
