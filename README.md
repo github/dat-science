@@ -311,14 +311,30 @@ irb> a.result
 => {"experiment"=>"widget-permissions", "user"=>{ ... } .... }
 irb> a.result.keys
 => ["experiment", "user", "timestamp", "candidate", "control", "first"]
+irb> a.result.experiment_name
+=> "widget-permissions"
+irb> a.result['first']
+=> "candidate"
+irb> a.result.first
+=> "candidate"
 irb> a.result['control']
 => {"duration"=>12.307, "exception"=>nil, "value"=>false}
+irb> a.result.control
+=> {"duration"=>12.307, "exception"=>nil, "value"=>false}
 irb> a.result['candidate']
+=> {"duration"=>12.366999999999999, "exception"=>nil, "value"=>true}
+irb> a.result.candidate
 => {"duration"=>12.366999999999999, "exception"=>nil, "value"=>true}
 irb> a.result['first']
 => "control"
 irb> a.result['timestamp']
-=> "2013-04-20T15:25:48-05:00"
+=> "2013-04-22T13:31:32-05:00"
+irb> a.result.timestamp
+=> 2013-04-22 13:31:32 -0500
+irb> a.result.timestamp.class
+=> Time
+irb> a.result.timestamp.to_i
+=> 1366655492
 irb> a.result['user']
 => {"login"=>"somed00d", ... }
 ```
