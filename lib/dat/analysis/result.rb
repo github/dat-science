@@ -1,3 +1,5 @@
+require "time"
+
 module Dat
   # Public: Base class for wrappers around science mismatch results.
   #
@@ -34,6 +36,43 @@ module Dat
     # result - a science mismatch result, to be wrapped with our instance methods.
     def initialize(result)
       @result = result
+    end
+  end
+
+  module Analysis::Result::DefaultMethods
+    # Public: Get the result data for the 'control' code path.
+    #
+    # Returns the 'control' field of the result hash.
+    def control
+      result['control']
+    end
+
+    # Public: Get the result data for the 'candidate' code path.
+    #
+    # Returns the 'candidate' field of the result hash.
+    def candidate
+      result['candidate']
+    end
+
+    # Public: Get the timestamp when the result was recorded.
+    #
+    # Returns a Time object for the timestamp for this result.
+    def timestamp
+      @timestamp ||= Time.parse(result['timestamp'])
+    end
+
+    # Public: Get which code path was run first.
+    #
+    # Returns the 'first' field of the result hash.
+    def first
+      result['first']
+    end
+
+    # Public: Get the experiment name
+    #
+    # Returns the 'experiment' field of the result hash.
+    def experiment_name
+      result['experiment']
     end
   end
 end

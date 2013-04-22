@@ -238,6 +238,8 @@ module Dat
     # Returns the cooked science mismatch result, which will now respond to any
     # instance methods found on our known wrapper classes
     def wrap(cooked_result)
+      cooked_result.extend Dat::Analysis::Result::DefaultMethods
+
       if !wrappers.empty?
         cooked_result.send(:instance_variable_set, '@analyzer', self)
 

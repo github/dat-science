@@ -1,6 +1,7 @@
 require "minitest/autorun"
 require "mocha/setup"
 require "dat/analysis"
+require "time"
 
 # helper class to provide mismatch results
 class TestMismatchAnalysis < Dat::Analysis
@@ -53,6 +54,24 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
     Dat::Analysis::Tally.any_instance.stubs(:puts)
     @experiment_name = 'test-suite-experiment'
     @analyzer = TestMismatchAnalysis.new @experiment_name
+
+    @timestamp = Time.now
+    @raw_result = {
+      'experiment' => @experiment_name,
+      'control'    => {
+          'duration'  => 0.03,
+          'exception' => nil,
+          'value'     => true,
+        },
+      'candidate'  => {
+          'duration'  => 1.03,
+          'exception' => nil,
+          'value'     => false,
+        },
+      'first'      => 'candidate',
+      'timestamp'  => @timestamp.to_s
+    }
+    @result = Dat::Analysis::Result.new(@raw_result)
   end
 
   def test_preserves_the_experiment_name
@@ -435,6 +454,36 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
     assert_raises(Errno::EACCES) do
       analyzer.load_classes
     end
+  end
+
+  def test_result_has_an_useful_timestamp
+    @analyzer.mismatches.push(@result)
+    result = @analyzer.fetch
+    assert_equal @timestamp.to_i, @result.timestamp.to_i
+  end
+
+  def test_result_has_a_method_for_first
+    @analyzer.mismatches.push(@result)
+    result = @analyzer.fetch
+    assert_equal @raw_result['first'], result.first
+  end
+
+  def test_result_has_a_method_for_control
+    @analyzer.mismatches.push(@result)
+    result = @analyzer.fetch
+    assert_equal @raw_result['control'], result.control
+  end
+
+  def test_result_has_a_method_for_candidate
+    @analyzer.mismatches.push(@result)
+    result = @analyzer.fetch
+    assert_equal @raw_result['candidate'], result.candidate
+  end
+
+  def test_result_has_a_method_for_experiment_name
+    @analyzer.mismatches.push(@result)
+    result = @analyzer.fetch
+    assert_equal @raw_result['experiment'], result.experiment_name
   end
 
   def test_results_helper_methods_are_not_available_on_results_unless_loaded
