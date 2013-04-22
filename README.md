@@ -359,7 +359,7 @@ use `#skip`, giving it a block to test for the condition we want to skip
 past:
 
 ``` ruby
-irb> a.skip {|r| 5.minutes.ago < Time.parse(a.result['timestamp']) }
+irb> a.skip {|r| 5.minutes.ago < a.result.timestamp }
 => 43
 irb> a.skip {|r| true }
 => nil
@@ -392,21 +392,44 @@ The `#analyze` method, in conjunction with "matcher classes", makes this possibl
 ### `#analyze`
 
 You can run `#analyze` to automate the fetching of pending results.  If a result
-is identifiable by a matcher class, that result will skipped.  This process
-continues until either an unidentifiable result is found, or there are no more
-results available. When an unidentifiable result is found, a summary of the
-identified results is output, and then the first unidentified result is
-displayed in detail.
+is identifiable by a matcher class, then a summary of the identified result will
+be printed and that result will skipped.  This process continues until either an
+unidentifiable result is found, or there are no more results available. When an
+unidentifiable result is found, a summary of the identified results is output,
+and then the first unidentified result is displayed in detail.
 
 ```
 irb> a.analyze
-..................................................................................................
+User [somed00d] is staff (see http://github.com/our/project/issues/123)
+Permission [totesadmin] is obsolete (see http://github.com/dat/thing/issues/5234)
+User [somed00d] is staff (see http://github.com/our/project/issues/123)
+Permission [totesadmin] is obsolete (see http://github.com/dat/thing/issues/5234)
+User [0th3rd00d] is staff (see http://github.com/our/project/issues/123)
+Permission [totesadmin] is obsolete (see http://github.com/dat/thing/issues/5234)
+User [0th3rd00d] is staff (see http://github.com/our/project/issues/123)
+Permission [totesadmin] is obsolete (see http://github.com/dat/thing/issues/5234)
+Permission [totesadmin] is obsolete (see http://github.com/dat/thing/issues/5234)
+Permission [totesadmin] is obsolete (see http://github.com/dat/thing/issues/5234)
+User [0th3rd00d] is staff (see http://github.com/our/project/issues/123)
+Permission [totesadmin] is obsolete (see http://github.com/dat/thing/issues/5234)
+User [somed00d] is staff (see http://github.com/our/project/issues/123)
+User [somed00d] is staff (see http://github.com/our/project/issues/123)
+Permission [totesadmin] is obsolete (see http://github.com/dat/thing/issues/5234)
+User [0th3rd00d] is staff (see http://github.com/our/project/issues/123)
+User [0th3rd00d] is staff (see http://github.com/our/project/issues/123)
+User [0th3rd00d] is staff (see http://github.com/our/project/issues/123)
+Permission [totesadmin] is obsolete (see http://github.com/dat/thing/issues/5234)
+User [somed00d] is staff (see http://github.com/our/project/issues/123)
+User [somed00d] is staff (see http://github.com/our/project/issues/123)
+User [0th3rd00d] is staff (see http://github.com/our/project/issues/123)
+User [0th3rd00d] is staff (see http://github.com/our/project/issues/123)
+Permission [totesadmin] is obsolete (see http://github.com/dat/thing/issues/5234)
 
 Summary of identified results:
 
-         StaffFunninessMatcher:     53
-          ZOMGIssue5423Matcher:     45
-                         TOTAL:     98
+         StaffFunninessMatcher:     14
+          ZOMGIssue5423Matcher:     10
+                         TOTAL:     24
 
 First unidentifiable result:
 
@@ -445,6 +468,10 @@ class StaffFunninessMatcher < Dat::Analysis::Matcher
   def match?
     User.find_by_login(result['user']['login']).staff?
   end
+
+  def readable
+    "User [#{result['user']['login']}] is staff (see http://github.com/our/project/issues/123)"
+  end
 end
 ```
 
@@ -466,31 +493,19 @@ way to let your analyzers keep track of your helper classes.
 #### Getting a summary of an identified result
 
 The `#summary` method on the analyzer will return a readable version of the
-current result.  This is usually a fairly voluminous output (it's what you saw
+current result.  This is by default a fairly voluminous output (it's what you saw
 at the end of an `#analyze` run above), but if your matcher defines a
-`#readable` method, the summary of an identified result can be a readable
-string:
-
-
-``` ruby
-class StaffFunninessMatcher < Dat::Analysis::Matcher
-  # our staff role permissions are just soooo busted
-  def match?
-    User.find_by_login(result['user']['login']).staff?
-  end
-
-  def readable
-    "User [#{result['user']['login']}] is staff (see http://github.com/our/project/issues/123)"
-  end
-end
-```
-
-Which would look like:
+`#readable` method.
 
 ``` ruby
 irb> a.summary
 => "User [somed00d] is staff (see http://github.com/our/project/issues/123)"
 ```
+
+The `#analyze` method uses these `#readable` methods to produce a more succinct
+summary of identified results, like we showed above.
+
+**Define a `#readable` method for cleaner `#analyze` output!**
 
 ### Adding methods to results (wrappers)
 
