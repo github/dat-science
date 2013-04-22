@@ -88,14 +88,14 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   end
 
   def test_analyze_returns_nil_if_there_is_a_current_result_but_no_additional_results
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.fetch
     assert @analyzer.current
     assert_nil @analyzer.analyze
   end
 
   def test_analyze_leaves_tallies_empty_if_there_is_a_current_result_but_no_additional_results
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.fetch
     assert @analyzer.current
     @analyzer.analyze
@@ -104,23 +104,23 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
 
   def test_analyze_outputs_default_result_summary_and_tally_summary_when_one_unrecognized_result_is_present
     @analyzer.expects(:summarize_unknown_result)
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.analyze
   end
 
   def test_analyze_returns_nil_when_one_unrecognized_result_is_present
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     assert_nil @analyzer.analyze
   end
 
   def test_analyze_leaves_current_result_set_to_first_result_when_one_unrecognized_result_is_present
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.analyze
-    assert_equal 'mismatch-1', @analyzer.current
+    assert_equal @result, @analyzer.current
   end
 
   def test_analyze_leaves_tallies_empty_when_one_unrecognized_result_is_present
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.analyze
     assert_equal({}, @analyzer.tally.tally)
   end
@@ -274,7 +274,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   end
 
   def test_skip_leaves_current_alone_if_the_current_result_satisfies_the_block
-    @analyzer.mismatches.push 'known-1'
+    @analyzer.mismatches.push @result
 
     @analyzer.skip do |result|
       true
@@ -282,7 +282,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   end
 
   def test_skip_returns_0_if_the_current_result_satisfies_the_block_and_no_other_results_are_available
-    @analyzer.mismatches.push 'known-1'
+    @analyzer.mismatches.push @result
 
     remaining = @analyzer.skip do |result|
       true
@@ -292,9 +292,9 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   end
 
   def test_skip_returns_the_number_of_additional_results_if_the_current_result_satisfies_the_block_and_other_results_are_available
-    @analyzer.mismatches.push 'known-1'
-    @analyzer.mismatches.push 'known-2'
-    @analyzer.mismatches.push 'known-3'
+    @analyzer.mismatches.push @result
+    @analyzer.mismatches.push @result
+    @analyzer.mismatches.push @result
 
     remaining = @analyzer.skip do |result|
       true
@@ -304,9 +304,9 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   end
 
   def test_skip_returns_nil_if_no_results_are_satisfying
-    @analyzer.mismatches.push 'known-1'
-    @analyzer.mismatches.push 'known-2'
-    @analyzer.mismatches.push 'known-3'
+    @analyzer.mismatches.push @result
+    @analyzer.mismatches.push @result
+    @analyzer.mismatches.push @result
 
     remaining = @analyzer.skip do |result|
       false
@@ -316,9 +316,9 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   end
 
   def test_skip_skips_all_results_if_no_results_are_satisfying
-    @analyzer.mismatches.push 'known-1'
-    @analyzer.mismatches.push 'known-2'
-    @analyzer.mismatches.push 'known-3'
+    @analyzer.mismatches.push @result
+    @analyzer.mismatches.push @result
+    @analyzer.mismatches.push @result
 
     remaining = @analyzer.skip do |result|
       false
@@ -328,9 +328,9 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   end
 
   def test_skip_leaves_current_as_nil_if_no_results_are_satisfying
-    @analyzer.mismatches.push 'known-1'
-    @analyzer.mismatches.push 'known-2'
-    @analyzer.mismatches.push 'known-3'
+    @analyzer.mismatches.push @result
+    @analyzer.mismatches.push @result
+    @analyzer.mismatches.push @result
 
     remaining = @analyzer.skip do |result|
       false
@@ -344,7 +344,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   end
 
   def test_more_is_true_when_there_are_mismatches
-    @analyzer.mismatches.push 'a mismatch'
+    @analyzer.mismatches.push @result
     assert @analyzer.more?
   end
 
@@ -370,22 +370,22 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   end
 
   def test_current_returns_the_most_recent_mismatch_when_one_has_been_fetched
-    @analyzer.mismatches.push 'mismatch'
+    @analyzer.mismatches.push @result
     @analyzer.fetch
-    assert_equal 'mismatch', @analyzer.current
+    assert_equal @result, @analyzer.current
   end
 
   def test_current_updates_with_later_fetches
-    @analyzer.mismatches.push 'mismatch-1'
-    @analyzer.mismatches.push 'mismatch-2'
+    @analyzer.mismatches.push @result
+    @analyzer.mismatches.push @result
     @analyzer.fetch
     result = @analyzer.fetch
     assert_equal result, @analyzer.current
   end
 
   def test_result_is_an_alias_for_current
-    @analyzer.mismatches.push 'mismatch-1'
-    @analyzer.mismatches.push 'mismatch-2'
+    @analyzer.mismatches.push @result
+    @analyzer.mismatches.push @result
     @analyzer.fetch
     result = @analyzer.fetch
     assert_equal result, @analyzer.result
@@ -401,9 +401,9 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   end
 
   def test_raw_returns_an_unprocessed_version_of_the_most_recent_mismatch
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     result = @analyzer.fetch
-    assert_equal 'mismatch-1', @analyzer.raw
+    assert_equal @result, @analyzer.raw
   end
 
   def test_raw_updates_with_later_fetches
@@ -503,7 +503,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
     end
 
     @analyzer.add wrapper
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     result = @analyzer.fetch
     assert_equal 'github/dat-science', result.repository
   end
@@ -523,7 +523,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
 
     @analyzer.add wrapper1
     @analyzer.add wrapper2
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     result = @analyzer.fetch
     assert_equal 'github/dat-science', result.repository
     assert_equal :rick, result.user
@@ -548,7 +548,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
 
     @analyzer.add wrapper1
     @analyzer.add wrapper2
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     result = @analyzer.fetch
     assert_equal 'github/dat-science', result.repository
     assert_equal :rick, result.user
@@ -586,7 +586,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   end
 
   def test_summarize_returns_nil_and_prints_the_default_readable_result_if_a_result_is_current_but_no_matchers_are_known
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.fetch
     assert_nil @analyzer.summarize
     assert_equal @analyzer.readable, @analyzer.last_printed
@@ -604,7 +604,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
     end
 
     @analyzer.add matcher
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.fetch
     assert_nil @analyzer.summarize
     assert_equal @analyzer.readable, @analyzer.last_printed
@@ -636,7 +636,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
     end
 
     @analyzer.add matcher
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.fetch
     assert_nil @analyzer.summarize
     assert_equal @analyzer.readable, @analyzer.last_printed
@@ -661,7 +661,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   end
 
   def test_summary_returns_the_default_readable_result_if_a_result_is_current_but_no_matchers_are_known
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.fetch
     assert_equal @analyzer.readable, @analyzer.summary
   end
@@ -678,7 +678,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
     end
 
     @analyzer.add matcher
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.fetch
     assert_equal @analyzer.readable, @analyzer.summary
   end
@@ -708,7 +708,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
     end
 
     @analyzer.add matcher
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.fetch
     assert_equal @analyzer.readable, @analyzer.summary
   end
@@ -731,7 +731,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   end
 
   def test_unknown_returns_true_if_a_result_is_current_but_no_matchers_are_known
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.fetch
     assert_equal true, @analyzer.unknown?
   end
@@ -744,7 +744,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
     end
 
     @analyzer.add matcher
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.fetch
     assert_equal true, @analyzer.unknown?
   end
@@ -757,7 +757,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
     end
 
     @analyzer.add matcher
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.fetch
     assert_equal false, @analyzer.unknown?
   end
@@ -767,7 +767,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
   end
 
   def test_identify_returns_nil_if_a_result_is_current_but_no_matchers_are_known
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.fetch
     assert_nil @analyzer.identify
   end
@@ -780,7 +780,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
     end
 
     @analyzer.add matcher
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.fetch
     assert_nil @analyzer.identify
   end
@@ -793,7 +793,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
     end
 
     @analyzer.add matcher
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.fetch
     assert_equal matcher, @analyzer.identify.class
   end
@@ -813,7 +813,7 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
 
     @analyzer.add matcher1
     @analyzer.add matcher2
-    @analyzer.mismatches.push 'mismatch-1'
+    @analyzer.mismatches.push @result
     @analyzer.fetch
     assert_raises(RuntimeError) do
       @analyzer.identify
