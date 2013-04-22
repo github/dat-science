@@ -44,35 +44,35 @@ module Dat
     #
     # Returns the 'control' field of the result hash.
     def control
-      result['control']
+      self['control']
     end
 
     # Public: Get the result data for the 'candidate' code path.
     #
     # Returns the 'candidate' field of the result hash.
     def candidate
-      result['candidate']
+      self['candidate']
     end
 
     # Public: Get the timestamp when the result was recorded.
     #
     # Returns a Time object for the timestamp for this result.
     def timestamp
-      @timestamp ||= Time.parse(result['timestamp'])
+      @timestamp ||= Time.parse(self['timestamp'])
     end
 
     # Public: Get which code path was run first.
     #
     # Returns the 'first' field of the result hash.
     def first
-      result['first']
+      self['first']
     end
 
     # Public: Get the experiment name
     #
     # Returns the 'experiment' field of the result hash.
     def experiment_name
-      result['experiment']
+      self['experiment']
     end
   end
 end
