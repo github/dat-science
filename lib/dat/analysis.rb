@@ -103,22 +103,22 @@ module Dat
     #
     # Examples:
     #
-    #   jump_to do |result|
+    #   skip do |result|
     #     result.user.staff?
     #   end
     #
-    #   jump_to do |result|
+    #   skip do |result|
     #     result['group']['id'] > 100 && result['url'] =~ %r{/admin}
     #   end
     #
-    #   jump_to do |result|
+    #   skip do |result|
     #     result['timestamp'].to_i > 1.hour.ago
     #   end
     #
     # Returns nil if no satisfying results are found.  Current result will be nil.
     # Returns count of remaining results if a satisfying result found.  Leaves
     # current result set to first result for which block returns a truthy value.
-    def jump_to(&block)
+    def skip(&block)
       raise ArgumentError, "a block is required" unless block_given?
 
       while more?

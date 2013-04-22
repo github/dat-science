@@ -330,7 +330,7 @@ was run first; and an entry for every object saved via a `context` call during
 the experiment.
 
 Note that the `#result` method will continue to return the previously fetched
-result, until we overwrite it with another `#fetch`, `#jump_to`, or `#analyze`
+result, until we overwrite it with another `#fetch`, `#skip`, or `#analyze`
 (see below).
 
 #### Skipping results
@@ -339,13 +339,13 @@ Sometimes we make changes to the code we're running experiments against, and
 sometimes those changes cause experiment results to be out of date -- if we've
 fixed a bug we found via science, it's not much point in looking at results
 generated while our code still had that bug.  To jump past a batch of results,
-use `#jump_to`, giving it a block to test for the condition we want to skip
+use `#skip`, giving it a block to test for the condition we want to skip
 past:
 
 ``` ruby
-irb> a.jump_to {|r| 5.minutes.ago < Time.parse(a.result['timestamp']) }
+irb> a.skip {|r| 5.minutes.ago < Time.parse(a.result['timestamp']) }
 => 43
-irb> a.jump_to {|r| true }
+irb> a.skip {|r| true }
 => nil
 ```
 

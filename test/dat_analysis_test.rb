@@ -240,80 +240,80 @@ class DatAnalysisTest < MiniTest::Unit::TestCase
     assert_equal({'RecognizerOne' => 1}, @analyzer.tally.tally)
   end
 
-  def test_jump_to_fails_if_no_block_is_provided
+  def test_skip_fails_if_no_block_is_provided
     assert_raises(ArgumentError) do
-      @analyzer.jump_to
+      @analyzer.skip
     end
   end
 
-  def test_jump_to_returns_nil_if_there_is_no_current_result
-    remaining = @analyzer.jump_to do |result|
+  def test_skip_returns_nil_if_there_is_no_current_result
+    remaining = @analyzer.skip do |result|
       true
     end
 
     assert_nil remaining
   end
 
-  def test_jump_to_leaves_current_alone_if_the_current_result_satisfies_the_block
+  def test_skip_leaves_current_alone_if_the_current_result_satisfies_the_block
     @analyzer.mismatches.push 'known-1'
 
-    @analyzer.jump_to do |result|
+    @analyzer.skip do |result|
       true
     end
   end
 
-  def test_jump_to_returns_0_if_the_current_result_satisfies_the_block_and_no_other_results_are_available
+  def test_skip_returns_0_if_the_current_result_satisfies_the_block_and_no_other_results_are_available
     @analyzer.mismatches.push 'known-1'
 
-    remaining = @analyzer.jump_to do |result|
+    remaining = @analyzer.skip do |result|
       true
     end
 
     assert_equal 0, remaining
   end
 
-  def test_jump_to_returns_the_number_of_additional_results_if_the_current_result_satisfies_the_block_and_other_results_are_available
+  def test_skip_returns_the_number_of_additional_results_if_the_current_result_satisfies_the_block_and_other_results_are_available
     @analyzer.mismatches.push 'known-1'
     @analyzer.mismatches.push 'known-2'
     @analyzer.mismatches.push 'known-3'
 
-    remaining = @analyzer.jump_to do |result|
+    remaining = @analyzer.skip do |result|
       true
     end
 
     assert_equal 2, remaining
   end
 
-  def test_jump_to_returns_nil_if_no_results_are_satisfying
+  def test_skip_returns_nil_if_no_results_are_satisfying
     @analyzer.mismatches.push 'known-1'
     @analyzer.mismatches.push 'known-2'
     @analyzer.mismatches.push 'known-3'
 
-    remaining = @analyzer.jump_to do |result|
+    remaining = @analyzer.skip do |result|
       false
     end
 
     assert_nil remaining
   end
 
-  def test_jump_to_skips_all_results_if_no_results_are_satisfying
+  def test_skip_skips_all_results_if_no_results_are_satisfying
     @analyzer.mismatches.push 'known-1'
     @analyzer.mismatches.push 'known-2'
     @analyzer.mismatches.push 'known-3'
 
-    remaining = @analyzer.jump_to do |result|
+    remaining = @analyzer.skip do |result|
       false
     end
 
     assert !@analyzer.more?
   end
 
-  def test_jump_to_leaves_current_as_nil_if_no_results_are_satisfying
+  def test_skip_leaves_current_as_nil_if_no_results_are_satisfying
     @analyzer.mismatches.push 'known-1'
     @analyzer.mismatches.push 'known-2'
     @analyzer.mismatches.push 'known-3'
 
-    remaining = @analyzer.jump_to do |result|
+    remaining = @analyzer.skip do |result|
       false
     end
 
