@@ -205,6 +205,13 @@ The results of the `control` and `candidate` blocks will be run through the
 but the `cleaner` makes it easier to keep things in sync. The original
 `control` result is still returned.
 
+## What do I do with all these results?
+
+Once you've started an experiment and published some results, you'll want to
+analyze the mismatches from your experiment.  Check out
+[`dat-analysis`](https://github.com/github/dat-analysis) where you'll find an
+analysis toolkit to help you understand your experiment results.
+
 ## Hacking on science
 
 Be on a Unixy box. Make sure a modern Bundler is available. `script/test` runs
