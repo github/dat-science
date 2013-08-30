@@ -37,9 +37,14 @@ module Dat
       def payload
         {
           :duration  => duration,
-          :exception => exception,
+          :exception => serialize_exception(exception),
           :value     => experiment.clean(value)
         }
+      end
+
+      def serialize_exception(exception)
+        return nil unless exception
+        { :class => exception.class.name, :message => exception.message }
       end
 
       def raised?
