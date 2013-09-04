@@ -272,7 +272,11 @@ class DatScienceExperimentTest < MiniTest::Unit::TestCase
     refute_nil payload
 
     assert_equal :mismatch, event
-    assert_equal({ :message => 'foo', :class => 'RuntimeError' }, payload[:control][:exception])
-    assert_equal({ :message => 'bar', :class => 'RuntimeError' }, payload[:candidate][:exception])
+    assert_equal 'foo',          payload[:control][:exception][:message]
+    assert_equal 'RuntimeError', payload[:control][:exception][:class]
+    refute_nil                   payload[:control][:exception][:backtrace]
+    assert_equal 'bar',          payload[:candidate][:exception][:message]
+    assert_equal 'RuntimeError', payload[:candidate][:exception][:class]
+    refute_nil                   payload[:candidate][:exception][:backtrace]
   end
 end
