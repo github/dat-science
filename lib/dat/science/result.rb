@@ -44,7 +44,11 @@ module Dat
 
       def serialized_exception
         return nil unless exception
-        { :class => exception.class.name, :message => exception.message }
+        {
+          :class     => exception.class.name,
+          :message   => exception.message,
+          :backtrace => exception.backtrace
+        }
       end
 
       def raised?
