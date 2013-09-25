@@ -126,7 +126,7 @@ end
 
 By default the results of an experiment are discarded. This isn't very useful.
 `Experiment#publish` can be overridden to publish results via any
-instrumentation mechansim, which makes it easy to graph durations or
+instrumentation mechanism, which makes it easy to graph durations or
 matches/mismatches and store results. The only two events published by an
 experiment are `:match` when the result of the control and candidate behaviors
 are the same, and `:mismatch` when they aren't.
