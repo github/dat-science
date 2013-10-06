@@ -2,7 +2,7 @@ require "minitest/autorun"
 require "mocha/setup"
 require "dat/science"
 
-class DatScienceTest < MiniTest::Unit::TestCase
+class DatScienceTest < MiniTest::Test
   def teardown
     Dat::Science.reset
   end

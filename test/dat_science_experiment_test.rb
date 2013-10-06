@@ -1,7 +1,7 @@
 require "minitest/autorun"
 require "dat/science/experiment"
 
-class DatScienceExperimentTest < MiniTest::Unit::TestCase
+class DatScienceExperimentTest < MiniTest::Test
   class Experiment < Dat::Science::Experiment
     def self.published
       @published ||= []
