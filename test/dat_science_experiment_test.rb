@@ -257,4 +257,26 @@ class DatScienceExperimentTest < MiniTest::Unit::TestCase
     refute_nil payload[:control][:exception]
     refute_nil payload[:candidate][:exception]
   end
+
+  def test_publishes_exception_data
+    e = Experiment.new "foo"
+    e.control { raise "foo" }
+    e.candidate { raise "bar" }
+
+    assert_raises RuntimeError do
+      e.run
+    end
+
+    event, payload = Experiment.published.first
+    refute_nil event
+    refute_nil payload
+
+    assert_equal :mismatch, event
+    assert_equal 'foo',          payload[:control][:exception][:message]
+    assert_equal 'RuntimeError', payload[:control][:exception][:class]
+    refute_nil                   payload[:control][:exception][:backtrace]
+    assert_equal 'bar',          payload[:candidate][:exception][:message]
+    assert_equal 'RuntimeError', payload[:candidate][:exception][:class]
+    refute_nil                   payload[:candidate][:exception][:backtrace]
+  end
 end
