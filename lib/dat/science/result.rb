@@ -18,7 +18,7 @@ module Dat
       def ==(other)
         return false unless other.is_a? Dat::Science::Result
 
-        values_are_equal = experiment.compare(other.value, value)
+        values_are_equal = experiment.compare(value, other.value)
         both_raised      = other.raised? && raised?
         neither_raised   = !other.raised? && !raised?
 

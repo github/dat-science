@@ -71,6 +71,19 @@ class DatScienceExperimentTest < MiniTest::Test
     assert_equal :mismatch, event
   end
 
+  def test_comparator_order
+    yielded = nil
+    e = Experiment.new "foo"
+    e.control { "control" }
+    e.candidate { "candidate" }
+    e.comparator do |a, b|
+      yielded = [a, b]
+    end
+    e.run
+
+    assert_equal ["control", "candidate"], yielded
+  end
+
   def test_context_default
     e = Experiment.new "foo"
 
