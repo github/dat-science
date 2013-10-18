@@ -98,6 +98,9 @@ science "loose-comparison" do |e|
 end
 ```
 
+The arguments yielded to the comparator block are the control value followed by
+the candidate value.
+
 ### Ramping up experiments
 
 By default the `candidate` block of an experiment will run 100% of the time.
