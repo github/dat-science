@@ -101,12 +101,23 @@ module Dat
           :first     => control_runs_first? ? :control : :candidate
         }
 
-        kind = control == candidate ? :match : :mismatch
+        kind = evaluate control, candidate
         publish_with_context kind, payload
 
         raise control.exception if control.raised?
 
         control.value
+      end
+
+      # Public: Determine the outcome of an experiment run
+      #
+      # control - result from running control method
+      # candidate - result from running candidate method
+      #
+      # Returns :match if control and candidate produced the same
+      # result, :mismatch otherwise.
+      def evaluate(control, candidate)
+        control == candidate ? :match : :mismatch
       end
 
       protected
