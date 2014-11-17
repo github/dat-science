@@ -1,4 +1,6 @@
-# Science!
+# Science is happening elsewhere!
+
+*This repository is historical. Up-to-date bits are over in [`github/scientist`](https://github.com/github/scientist).*
 
 A Ruby library for carefully refactoring critical paths. Science isn't a feature
 flipper or an A/B testing tool, it's a pattern that helps measure and validate
